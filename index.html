@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title></title>
+</head>
+<body>
+
+  <div id="audio"></div>
+  <button id="speed">speed</button>
+
+  <script>
+    var btn = document.querySelector('#speed');
+    btn.addEventListener('click', function(e) {
+      audio.setPlaybackRate(0.5)
+    });
+
+  </script>
+
+  <script>
+    var src="http://dl.stream.qqmusic.qq.com/C4000049dUe438AZ85.m4a?vkey=F8AE29D9CFF1B3C7CFF6DC0E179D3E59BCA0644CA919BE72FF35EFA60B1DFBA02AB522B79EE7DFD480588511A4EBAFD2F47288A09514ED81&guid=9157554720&uin=0&fromtag=66";
+
+    let config = {
+      el: '#audio',
+      width: 500,
+      height: 300,
+      src: src,
+      controls: true,
+      autoplay: false,
+      defaultMuted: false,
+      defaultPlaybackRate: 1,
+      loop: true,
+      muted: false,
+      preload: true,
+      volume: 1
+    }
+
+    class threeAudio {
+      constructor (config) {
+        this.el = config.el;
+        this.controls = config.controls || false;
+        this.width = config.width || '100%';
+        this.height = config.height || '300';
+        this.defaultMuted = config.defaultMuted || false;
+        this.defaultPlaybackRate = config.defaultPlaybackRate || 1;
+        this.loop = config.loop || false;
+        this.muted = config.muted || false;
+        this.preload = config.preload || true;
+        this.src = config.src || '';
+        this.volume = config.volume || 1;
+        this.autoplay = config.autoplay || false;
+      }
+
+      // 初始化音乐播放器
+      initAudio () {
+        var container = document.querySelector(this.el);
+        var audio = document.createElement('audio');
+        container.appendChild(audio);
+        this.dom = audio;
+
+        this.dom.defaultPlaybackRate = this.defaultPlaybackRate;
+        this.setSrc(this.src);
+        this.setControls(this.controls);
+        this.setVolume(this.volume);
+        this.setLoop(this.loop);
+        this.setMuted(this.muted);
+        this.setPreload(this.preload);
+        this.autoplay && this.play();
+
+        // 事件
+        this.dom.addEventListener('error', this.eventError);
+        this.dom.addEventListener('play', this.eventPlay);
+        this.dom.addEventListener('pause', this.eventPause);
+        this.dom.addEventListener('ratechange', this.eventRatechange);
+        this.dom.addEventListener('timeupdate', this.eventTimeupdate);
+        this.dom.addEventListener('seeked', this.eventSeeked);
+        this.dom.addEventListener('seeking', this.eventSeeking);
+        this.dom.addEventListener('canplay', this.eventCanPlay);
+        this.dom.addEventListener('canplaythrough', this.eventCanPlayThrough);
+        this.dom.addEventListener('volumechange', this.eventVolumeChange);
+      }
+
+      // 获取audio dom节点
+      getDom () {
+        return this.dom
+      }
+
+      // 返回已缓冲数据的timeRanges对象;
+      getBuffered () {
+        return this.dom.buffered;
+      }
+
+      // 返回当前播放的url
+      getCurrentSrc () {
+        return this.dom.currentSrc;
+      }
+
+      // 返回当前播放位置（秒）
+      getCurrentTime () {
+        return this.dom.currentTime;
+      }
+
+      // 返回总时长 (bug)
+      getTotalTime () {
+        // var that = this;
+        // setTimeout(function () {
+        //   console.log(that.dom);
+        //   return that.dom.duration;
+        // }, 0)
+      }
+
+      // 返回当前网络状态
+      getNetworkState () {
+        return this.dom.networkState;
+      }
+
+      // 是否播放完毕
+      isEnd () {
+        var dom = this.dom;
+        return dom.ended ? true : false;
+      } 
+
+      // 是否静音
+      isMuted () {
+        return this.muted;
+      }
+
+      // 播放
+      play () {
+        this.dom.play()
+      }
+
+      // 暂停
+      pause () {
+        this.dom.pause()
+      }
+
+      // 重载
+      load () {
+        this.dom.load();
+      }
+
+      // 设置当前播放的时间
+      setTime (time) {
+        this.dom.currentTime = time;
+      }
+
+      // 设置音量大小
+      setVolume ( number ) {
+        this.dom.volume = number;
+      }
+
+      // 设置控制条
+      setControls (controls) {
+        this.dom.controls = controls;
+      }
+
+      // 设置播放源
+      setSrc (src) {
+        this.dom.src = src;
+      }
+
+      // 设置是否循环播放
+      setLoop (loop) {
+        this.dom.loop = loop;
+      }
+
+      // 设置静音
+      setMuted (muted) {
+        this.dom.muted = muted;
+      }
+
+      // 设置预加载
+      setPreload (preload) {
+        this.dom.preload = preload;
+      }
+
+      // 设置播放速度
+      setPlaybackRate (speed) {
+        this.dom.playbackRate = speed;
+      }
+
+      // 事件
+      eventError (event) {
+        console.log('player error', event);
+      }
+
+      eventPlay (event) {
+        // console.log('player playing', event)
+      }
+
+      eventPause (event) {
+        console.log('player pause', event);
+      }
+
+      eventRatechange (event) {
+        // console.log('player speed change', event);
+      }
+
+      eventTimeupdate (event) {
+        // console.log('player currentTime change', event);
+      }
+
+      // 用户已移动到新时间点 // 需要设置节流函数
+      eventSeeked (event) {
+        // console.log('player seeked', event);
+      }
+
+      // 用户开始移动到新时间点  // 需要设置节流函数
+      eventSeeking (event) {
+        // console.log('palyer seeking', event);
+      }
+
+      eventCanPlay (event) {
+        // console.log('player can play', event);
+      }
+
+      eventCanPlayThrough (event) {
+        // console.log('player can play all', event);
+      }
+
+      eventVolumeChange (event) {
+        console.log('player volume change', evnet);
+      }
+
+
+
+
+
+    }
+
+    var audio = new threeAudio(config);
+    audio.initAudio();
+    // console.log(audio)
+    // console.log(audio.getTotalTime());
+
+  </script>
+</body>
+</html>
