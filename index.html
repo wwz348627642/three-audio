@@ -8,21 +8,35 @@
 <body>
 
   <div id="audio"></div>
-  <button id="speed">speed</button>
+  <button id="init">init</button>
+  <button id="change">change</button>
   <button id="total">total</button>
+  <button id="delete">delete</button>
 
   <script>
-    var btn = document.querySelector('#speed');
-    btn.addEventListener('click', function(e) {
 
+    var init = document.querySelector('#init');
+    init.addEventListener('click', function(e) {     
+      audio.initAudio();
+    });
+
+    var change = document.querySelector('#change');
+    change.addEventListener('click', function(e) {
       var new_src = "http://dl.stream.qqmusic.qq.com/C4000037HbRF0daJSo.m4a?vkey=F9C73FBF4E1C740333A62664EACFFAC01A1C45A9BEF5B0B22AA1C408A44C33E54F6605E52BA854B4CCCF1077C511643C72A40F73454F1B3F&guid=9157554720&uin=0&fromtag=66"
-
       audio.setSrc(new_src);
     });
 
     var total = document.querySelector('#total');
      total.addEventListener('click', function(e) {
+        // var new_src = '123';
+        // audio.setSrc(new_src);
        console.log(audio.getTotalTime());
+     })
+
+     var del = document.querySelector('#delete');
+      del.addEventListener('click', function(e) {
+        // audio.destroy();
+        console.log(audio.getBuffered())
      })
   </script>
 
@@ -92,6 +106,10 @@
         this.dom.addEventListener('abort', this.eventAbort);
         this.dom.addEventListener('loadeddata', this.eventLoadedData);
         this.dom.addEventListener('loadedmetadata', this.eventLoadedMetaData);
+        this.dom.addEventListener('progress', this.eventProgress);
+        this.dom.addEventListener('stalled', this.eventStalled);
+        this.dom.addEventListener('loadstart', this.eventLoadStart);
+        this.dom.addEventListener('waiting', this.eventWaiting);
       }
 
       // 获取audio dom节点
@@ -151,6 +169,14 @@
         this.dom.load();
       }
 
+      // 销毁自身
+      destroy () {
+        var el = document.querySelector(this.el);
+        el.removeChild(this.dom);
+        this.dom = null;
+        console.log(this)
+      }
+
       // 设置当前播放的时间
       setTime (number) {
         this.dom.currentTime = number;
@@ -193,7 +219,7 @@
 
       // 事件
       eventError (event) {
-        console.log('player error', event);
+        // console.log('player error', event);
       }
 
       eventPlay (event) {
@@ -201,7 +227,7 @@
       }
 
       eventPause (event) {
-        console.log('player pause', event);
+        // console.log('player pause', event);
       }
 
       eventRatechange (event) {
@@ -232,46 +258,58 @@
 
       // 音量大小改变  // 需要设置节流函数
       eventVolumeChange (event) {
-        console.log('player volume change', event);
+        // console.log('player volume change', event);
       }
 
       // 监听播放是否结束 // 与loop = true 互斥
       eventEnded (event) {
-        console.log('player ended', event);
+        // console.log('player ended', event);
       }
 
       // 传说是播放列表为空触发，然而我并知道什么是播放列表~~
       eventEmptied (event) {
-        console.log('player list emptid', event);
+        // console.log('player list emptid', event);
       }
 
       // 放弃加载(切换音频源)时
       eventAbort (event) {
-        console.log('player abort this src', event);
+        // console.log('player abort this src', event);
+      }
+
+      eventLoadStart (event) {
+        console.log('data is load start', event);
       }
 
       // 当前帧的数据已加载，但没有足够的数据来播放指定音频/视频的下一帧
       eventLoadedData (event) {
+        // console.log('network is bad', event);
+      }
+
+      // 
+      eventWaiting (event) {
         console.log('network is bad', event);
       } 
 
       // 当指定的音频/视频的元数据已加载时, 音频/视频的元数据包括：时长、尺寸（仅视频）以及文本轨道。
       eventLoadedMetaData (event) {
-        console.log('data in loaded', event);
-         
-        console.log(this.duration);
-
-        
+        // console.log('data is loaded', event);       
+        // console.log(this.duration); 
       }
 
+      // 正在下载音频
+      eventProgress (event) {
+        // console.log('data is loading', event);
+      }
+
+      // 当浏览器尝试获取媒体数据，但数据不可用时
+      eventStalled (event) {
+        // console.log('load data error')
+      }
 
     }
 
-    var audio = new threeAudio(config);
-    audio.initAudio();
-    console.log(audio)
-    // console.log(audio.getTotalTime());
 
+    var audio = new threeAudio(config);
   </script>
 </body>
 </html>
