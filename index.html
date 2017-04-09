@@ -9,13 +9,21 @@
 
   <div id="audio"></div>
   <button id="speed">speed</button>
+  <button id="total">total</button>
 
   <script>
     var btn = document.querySelector('#speed');
     btn.addEventListener('click', function(e) {
-      audio.setPlaybackRate(0.5)
+
+      var new_src = "http://dl.stream.qqmusic.qq.com/C4000037HbRF0daJSo.m4a?vkey=F9C73FBF4E1C740333A62664EACFFAC01A1C45A9BEF5B0B22AA1C408A44C33E54F6605E52BA854B4CCCF1077C511643C72A40F73454F1B3F&guid=9157554720&uin=0&fromtag=66"
+
+      audio.setSrc(new_src);
     });
 
+    var total = document.querySelector('#total');
+     total.addEventListener('click', function(e) {
+       console.log(audio.getTotalTime());
+     })
   </script>
 
   <script>
@@ -30,7 +38,7 @@
       autoplay: false,
       defaultMuted: false,
       defaultPlaybackRate: 1,
-      loop: true,
+      loop: false,
       muted: false,
       preload: true,
       volume: 1
@@ -68,7 +76,7 @@
         this.setPreload(this.preload);
         this.autoplay && this.play();
 
-        // 事件
+        // 事件         // 需优化，选择性监听事件
         this.dom.addEventListener('error', this.eventError);
         this.dom.addEventListener('play', this.eventPlay);
         this.dom.addEventListener('pause', this.eventPause);
@@ -79,6 +87,11 @@
         this.dom.addEventListener('canplay', this.eventCanPlay);
         this.dom.addEventListener('canplaythrough', this.eventCanPlayThrough);
         this.dom.addEventListener('volumechange', this.eventVolumeChange);
+        this.dom.addEventListener('ended', this.eventEnded);
+        this.dom.addEventListener('emptied', this.eventEmptied);
+        this.dom.addEventListener('abort', this.eventAbort);
+        this.dom.addEventListener('loadeddata', this.eventLoadedData);
+        this.dom.addEventListener('loadedmetadata', this.eventLoadedMetaData);
       }
 
       // 获取audio dom节点
@@ -101,13 +114,10 @@
         return this.dom.currentTime;
       }
 
-      // 返回总时长 (bug)
+      // 返回总时长 需要在数据加载后获得，
+      // 初始化要获取总时长，需要在事件loadedmetadata中获得
       getTotalTime () {
-        // var that = this;
-        // setTimeout(function () {
-        //   console.log(that.dom);
-        //   return that.dom.duration;
-        // }, 0)
+        return this.dom.duration;
       }
 
       // 返回当前网络状态
@@ -142,18 +152,18 @@
       }
 
       // 设置当前播放的时间
-      setTime (time) {
-        this.dom.currentTime = time;
+      setTime (number) {
+        this.dom.currentTime = number;
       }
 
       // 设置音量大小
-      setVolume ( number ) {
+      setVolume (number) {
         this.dom.volume = number;
       }
 
       // 设置控制条
-      setControls (controls) {
-        this.dom.controls = controls;
+      setControls (bool) {
+        this.dom.controls = bool;
       }
 
       // 设置播放源
@@ -162,23 +172,23 @@
       }
 
       // 设置是否循环播放
-      setLoop (loop) {
-        this.dom.loop = loop;
+      setLoop (bool) {
+        this.dom.loop = bool;
       }
 
       // 设置静音
-      setMuted (muted) {
-        this.dom.muted = muted;
+      setMuted (bool) {
+        this.dom.muted = bool;
       }
 
       // 设置预加载
-      setPreload (preload) {
-        this.dom.preload = preload;
+      setPreload (bool) {
+        this.dom.preload = bool;
       }
 
       // 设置播放速度
-      setPlaybackRate (speed) {
-        this.dom.playbackRate = speed;
+      setPlaybackRate (number) {
+        this.dom.playbackRate = number;
       }
 
       // 事件
@@ -220,19 +230,46 @@
         // console.log('player can play all', event);
       }
 
+      // 音量大小改变  // 需要设置节流函数
       eventVolumeChange (event) {
-        console.log('player volume change', evnet);
+        console.log('player volume change', event);
       }
 
+      // 监听播放是否结束 // 与loop = true 互斥
+      eventEnded (event) {
+        console.log('player ended', event);
+      }
 
+      // 传说是播放列表为空触发，然而我并知道什么是播放列表~~
+      eventEmptied (event) {
+        console.log('player list emptid', event);
+      }
 
+      // 放弃加载(切换音频源)时
+      eventAbort (event) {
+        console.log('player abort this src', event);
+      }
+
+      // 当前帧的数据已加载，但没有足够的数据来播放指定音频/视频的下一帧
+      eventLoadedData (event) {
+        console.log('network is bad', event);
+      } 
+
+      // 当指定的音频/视频的元数据已加载时, 音频/视频的元数据包括：时长、尺寸（仅视频）以及文本轨道。
+      eventLoadedMetaData (event) {
+        console.log('data in loaded', event);
+         
+        console.log(this.duration);
+
+        
+      }
 
 
     }
 
     var audio = new threeAudio(config);
     audio.initAudio();
-    // console.log(audio)
+    console.log(audio)
     // console.log(audio.getTotalTime());
 
   </script>
